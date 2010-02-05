@@ -1,70 +1,88 @@
 <head>
-<style type="text/css">
-body {
-  color:#333;
-  min-width:350px;
-  font-family:Helvetica, Arial;
-  font-size:12px;
-  overflow-x:hidden;
-}
-
-a {
-  color:#06C;
-  font-weight:bold;
-  text-decoration:none;
-}
-
-a:hover {
-  color:blue;
-  text-decoration:underline;
-}
-
-h1 {
-  font-size:18px;
-  padding:0;
-  margin-bottom:5px;
-}
-
-#content {
-  line-height:16px;
-}
-</style>
+<link type="text/css" rel="stylesheet" href="css/styles.css">
 <script type="text/javascript" src="js/jquery-1.4.1.min.js"></script>
+<script type="text/javascript" src="js/json2.js"></script>
 <script>
+
+var best_choice = {
+  bbcone: "london",
+  bbctwo: "england",
+  radio1: "england",
+  radio4: "fm",
+  radioscotland: "fm",
+  radiowales: "fm"
+};
+
 function main() {
-  var has_options = localStorage["bbc_stations"];
+  var favs = localStorage["fav_services"];
 
-  if (has_options) {
-    var req = new XMLHttpRequest();
-    req.open(
-        "GET",
-        "http://www.bbc.co.uk/programmes/services.xml",
-        true);
-    req.onload = showNowNext;
-    req.send(null);
+  if (!favs) {
+    $('#welcome').fadeIn(); 
+    return;
+  }
+
+  var services = [];
+  jQuery.each(favs.split(','), function(index, key) {
+    var outlet = '';
+    if (best_choice[key]) {
+      outlet = best_choice[key] + "/"; 
+    }
+    services.push("http://www.bbc.co.uk/"+key+"/programmes/schedules/"+outlet+"upcoming.json");
+  });
+
+  displayList(services);
+}
+
+function displayList(s) {
+  jQuery.each(s, function(index, url) {
+    $.ajax({
+      url: url,
+      dataType: 'json',
+      success: function(data) {
+        buildServiceLabel(data);
+      },
+      error: function(data) {
+        $("#services").append("<li>oops, there has been a problem fetching the data</li>");
+      }
+    });
+  });
+}
+
+function buildServiceLabel(data) {
+  var now = nowData(data);
+  var next = nextData(data);
+  var service = serviceData(data);
+  
+  $("#services").append('<li><div class="network">'+service+'</div><div class="now">'+now+'</div><div class="next">'+next+'</div></li>');
+}
+
+function nowData(data) {
+  if (data["schedule"]["now"]) { 
+    return data["schedule"]["now"]["broadcast"]["programme"]["display_titles"]["title"];
   } else {
-    var txt = document.getElementById("content");
-    txt.innerHTML = "Welcome. To get started, you need to select some stations to display. Go to the <a href=\"#\" onclick=\"chrome.tabs.create({url: 'chrome://extensions'});\">Extensions page</a> and click the <strong>Options</strong> button for this extension.";
+    return '';
   }
 }
 
-function showNowNext() {
-  var services = req.responseXML.getElementsByTagName("service");
-
-  for (var i = 0, service; service = services[i]; i++) {
-    var s = document.createElement("li");
-    s.innerText = constructdata(service);
-    document.body.appendChild(s);
+function nextData(data) {
+  if (data["schedule"]["next"]) {
+    return data["schedule"]["next"]["broadcasts"][0]["programme"]["display_titles"]["title"];
+  } else {
+    return '';
   }
 }
 
-function constructdata(service) {
-  return service.getAttribute("key");
+function serviceData(data) {
+  return data["schedule"]["service"]["title"];
 }
+
 </script>
 </head>
-<body onload="javascript:main()">
-  <h1>BBC Now and Next information</h1>
-  <div id="content">Loading...</div>
+<body onload="javascript:main()" id="popup">
+  <div id="content">
+    <h1>BBC Now and Next information</h1>
+    <p id="welcome">Welcome. To get started, you need to select some stations to display. Go to the <a href="#" onclick="chrome.tabs.create({url: 'chrome://extensions'});">Extensions page</a> and click the <strong>Options</strong> button for this extension.</p>
+    <ul id="services"></ul>
+  </div>
 </body>
 </html>
