@@ -1,0 +1,23 @@
+{
+  "name": "BBC Now Next",
+  "version": "1.0",
+  "description": "Now and Next on BBC Radio and Television.",
+  "options_page": "options.html",
+  "icons": {
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
+  },
+  "browser_action": {
+    "default_icon": "icon.png",
+    "popup": "bbc.html"
+  },
+  "browser_action": {
+    "default_icon": "images/icon19.png",
+    "default_title": "Now Next on the BBC",
+    "popup": "bbc.html"
+  },
+  "permissions": [
+    "http://www.bbc.co.uk/",
+    "tabs"
+  ]
+}

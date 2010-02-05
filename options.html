@@ -1,0 +1,185 @@
+<html>
+<head>
+<title>BBC Now Next options page</title>
+<style type="text/css">
+body {
+  color:#333;
+  min-width:350px;
+  font-family:Helvetica, Arial;
+  font-size:15px;
+  overflow-x:hidden;
+  padding:20px;
+}
+
+#content {
+  display:none;
+}
+
+a {
+  color:#06C;
+  font-weight:bold;
+  text-decoration:none;
+}
+
+a:hover {
+  color:blue;
+  text-decoration:underline;
+}
+
+h1 {
+  font-size:24px;
+  padding:0;
+  border-bottom:1px solid #ccc;
+  padding-bottom:5px;
+  margin-bottom:5px;
+}
+
+h2 {
+  font-size:18px;
+  padding:0;
+  margin:0 0 8px 0;
+}
+
+h3 {
+  font-size:15px;
+  padding:0;
+  margin:0 0 5px 0;
+}
+
+p {
+  line-height:16px;
+}
+
+ul {
+  list-style:none;
+  margin:0 0 10px 0;
+  padding:0;
+}
+
+ul:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+
+li {
+  display:block;
+  float:left;
+  width:220px;
+  font-size:12px;
+}
+
+#status {
+  font-size:13px;
+  letter-spacing:1px;
+}
+</style>
+<script type="text/javascript" src="js/jquery-1.4.1.min.js"></script>
+<script type="text/javascript">
+
+// make some choices to simplify things a bit
+var best_choice = {
+  bbcone: "london",
+  bbctwo: "england",
+  radio1: "england",
+  radio4: "fm",
+  radioscotland: "fm",
+  radiowales: "fm"
+};
+
+function main() {
+  $('#status').text('loading all available services...');
+
+  $.ajax({
+    //url: 'http://www.bbc.co.uk/programmes/services.json',
+    url: 'data.json',
+    dataType: 'json',
+    success: function(data) {
+      $('#status').fadeOut("fast", function() {
+        showServices(data);
+        $('#content').fadeIn();
+      });
+    },
+    error: function(data) {
+      $('#status').text('oops, there has been a problem fetching the data');
+    }
+  });
+}
+
+function showServices(data) {
+  var services = data["services"];
+
+  for (var i = 0, service; service = services[i]; i++) {
+    var key = service["key"];
+    var label = constructLabel(service);
+    var result = "<li><label><input id=\"" + key + "\" type=\"checkbox\" name=\"network\" /> " + label + "</label></li>";
+    if ( service["type"] == "tv" ) $('#tv').append(result);  
+    if ( service["type"] == "radio" && service["subtype"] == "national" ) $('#national-radio').append(result);  
+    if ( service["type"] == "radio" && service["subtype"] == "regional" ) $('#regional-radio').append(result);  
+    if ( service["type"] == "radio" && service["subtype"] == "local" ) $('#local-radio').append(result);  
+  }
+}
+
+function constructLabel(service) {
+  var str = service["title"]; 
+  if (str.substring(0,3) == "BBC") {
+    str = str.substring(3,str.length);
+  }
+  return str;
+}
+
+function save_options() {
+  var tv = document.getElementById("tv").children;
+  var radio = document.getElementById("radio").children;
+  var color = select.children[select.selectedIndex].value;
+
+  localStorage["bbc_nownext"] = tv.concat(radio);
+
+  // Update status to let user know options were saved.
+  var status = document.getElementById("status");
+  status.innerHTML = "Options Saved.";
+  setTimeout(function() {
+    status.innerHTML = "";
+  }, 750);
+}
+
+function restore_options() {
+  var favs = localStorage["bbc_nownext"];
+  if (!favs) { return; }
+  var select = document.getElementById("color");
+  for (var i = 0; i < select.children.length; i++) {
+    var child = select.children[i];
+    if (child.value == favorite) {
+      child.selected = "true";
+      break;
+    }
+  }
+}
+
+</script>
+</head>
+<body onload="javascript:main()">
+
+  <h1>BBC Now Next options screen</h1>
+  <p id="status">Loading Options...</p>
+  
+  <div id="content">
+    <p>Choose your favourite stations from the list below.</p>
+
+    <h2>BBC Television</h2>
+    <ul id="tv"></ul>
+    <h2>BBC Radio</h2>
+    <h3>National</h3>
+    <ul id="national-radio"></ul>
+    <h3>Regional</h3>
+    <ul id="regional-radio"></ul>
+    <h3>Local</h3>
+    <ul id="local-radio"></ul>
+
+    <button onclick="save_options();">Save your selection</button>
+  </div>
+
+</body>
+</html>
