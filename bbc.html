@@ -4,14 +4,7 @@
 <script type="text/javascript" src="js/json2.js"></script>
 <script>
 
-var best_choice = {
-  bbcone: "london",
-  bbctwo: "england",
-  radio1: "england",
-  radio4: "fm",
-  radioscotland: "fm",
-  radiowales: "fm"
-};
+var bg = chrome.extension.getBackgroundPage();
 
 function main() {
   var favs = localStorage["fav_services"];
@@ -21,6 +14,8 @@ function main() {
     return;
   }
 
+  var best_choice = bg.best_choice;
+
   var services = [];
   jQuery.each(favs.split(','), function(index, key) {
     var outlet = '';
@@ -28,6 +23,7 @@ function main() {
       outlet = best_choice[key] + "/"; 
     }
     services.push("http://www.bbc.co.uk/"+key+"/programmes/schedules/"+outlet+"upcoming.json");
+    //services.push("upcoming.json");
   });
 
   displayList(services);
@@ -58,31 +54,52 @@ function buildServiceLabel(data) {
 
 function nowData(data) {
   if (data["schedule"]["now"]) { 
-    return data["schedule"]["now"]["broadcast"]["programme"]["display_titles"]["title"];
+    var pid = data["schedule"]["now"]["broadcast"]["programme"]["pid"];
+    var promo_img = 'http://node2.bbcimg.co.uk/iplayer/images/episode/'+pid+'_86_48.jpg';
+    var title = data["schedule"]["now"]["broadcast"]["programme"]["display_titles"]["title"];
+    var subtitle = data["schedule"]["now"]["broadcast"]["programme"]["short_synopsis"];
+    var link = "chrome.tabs.create({url: '"+bg.programmes_url + pid+"'});"; 
+    return '<img class="promo" src="'+promo_img+'">' +
+           '<p class="title"><a href="#" onclick="'+link+'">'+title+'</a></p>' +
+           '<p class="subtitle">'+subtitle+'</p>';
   } else {
-    return '';
+    return 'not available';
   }
 }
 
 function nextData(data) {
   if (data["schedule"]["next"]) {
-    return data["schedule"]["next"]["broadcasts"][0]["programme"]["display_titles"]["title"];
+    var pid = data["schedule"]["next"]["broadcasts"][0]["programme"]["pid"];
+    var promo_img = 'http://node2.bbcimg.co.uk/iplayer/images/episode/'+pid+'_86_48.jpg';
+    var title = data["schedule"]["next"]["broadcasts"][0]["programme"]["display_titles"]["title"];
+    var subtitle = data["schedule"]["next"]["broadcasts"][0]["programme"]["short_synopsis"];
+    var link = "chrome.tabs.create({url: '"+bg.programmes_url + pid+"'});"; 
+    return '<img class="promo" src="'+promo_img+'">' +
+           '<p class="title"><a href="#" onclick="'+link+'">'+title+'</a></p>' +
+           '<p class="subtitle">'+subtitle+'</p>';
   } else {
     return '';
   }
 }
 
 function serviceData(data) {
-  return data["schedule"]["service"]["title"];
+  var stations = bg.stations;
+  var key = stations[data["schedule"]["service"]["key"]];
+  var path = 'http://www.bbc.co.uk/iplayer/img/station_logos/'+key+'.png';
+  return '<img src="'+path+'" />'
 }
 
 </script>
 </head>
 <body onload="javascript:main()" id="popup">
   <div id="content">
-    <h1>BBC Now and Next information</h1>
-    <p id="welcome">Welcome. To get started, you need to select some stations to display. Go to the <a href="#" onclick="chrome.tabs.create({url: 'chrome://extensions'});">Extensions page</a> and click the <strong>Options</strong> button for this extension.</p>
-    <ul id="services"></ul>
+    <div id="welcome">
+      <h1>BBC Now and Next information</h1>
+      <p>Welcome. To get started, you need to select some stations to display. Go to the <a href="#" onclick="chrome.tabs.create({url: 'chrome://extensions'});">Extensions page</a> and click the <strong>Options</strong> button for this extension.</p>
+    </div>
+    <div id="">
+      <ul id="services"></ul>
+    </div>
   </div>
 </body>
 </html>

@@ -61,7 +61,8 @@ li {
 #options li,
 #options h1,
 #options h2,
-#options h3 {
+#options h3,
+#options h4 {
   text-shadow: 0 1px 1px #fff;
 }
 
@@ -82,6 +83,7 @@ li {
 }
 
 body#popup {
+  width:600px;
   background:transparent;
   padding:0;
 }
@@ -102,16 +104,30 @@ body#popup {
   float:none;
   font-size:12px;
   padding:5px;
+  border-bottom:1px solid #ccc;
+  margin-bottom:3px;
 }
 
 #popup li div {
-  margin-right:5px;
+  margin-left:8px;
 }
 
-#popup li:after,
-#popup .network:after,
-#popup .now:after,
-#popup .next:after {
+#popup li div img {
+  display:block;
+  margin-right:5px;
+  margin-bottom:5px;
+  float:left;
+}
+
+#popup li div p.subtitle {
+  clear:left;
+}
+
+#popup li div:first-child {
+  margin-left:0;
+}
+
+#popup li:after {
   content: ".";
   height: 0;
   clear: both;
@@ -126,17 +142,24 @@ body#popup {
 
 #popup .network {
   float:left;
-  width:50px;
+  width:75px;
 }
 
-#popup .now {
-  float:left;
-  width:120px;
+#popup .network img {
+  -webkit-border-radius: 5px; 
 }
 
+#popup .now,
 #popup .next {
   float:left;
-  width:100px;
+  width:230px;
+}
+
+#popup li h4 {
+  font-weight:normal;
+  font-size:11px;
+  padding:0;
+  margin:0;
 }
 
 #status {
