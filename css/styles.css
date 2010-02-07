@@ -108,15 +108,26 @@ body#popup {
   margin-bottom:3px;
 }
 
+#popup li:last-child {
+  border:none;
+}
+
 #popup li div {
   margin-left:8px;
 }
 
 #popup li div img {
+  -webkit-border-radius: 3px; 
   display:block;
   margin-right:5px;
   margin-bottom:5px;
   float:left;
+}
+
+#popup li div p.startend {
+  font-size:10px;
+  letter-spacing:1px;
+  font-weight:bold;
 }
 
 #popup li div p.subtitle {
@@ -146,7 +157,9 @@ body#popup {
 }
 
 #popup .network img {
+  float:none;
   -webkit-border-radius: 5px; 
+  -webkit-box-reflect: below 2px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(.7, transparent), to(white));
 }
 
 #popup .now,

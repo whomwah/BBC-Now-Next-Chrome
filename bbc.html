@@ -56,10 +56,13 @@ function nowData(data) {
   if (data["schedule"]["now"]) { 
     var pid = data["schedule"]["now"]["broadcast"]["programme"]["pid"];
     var promo_img = 'http://node2.bbcimg.co.uk/iplayer/images/episode/'+pid+'_86_48.jpg';
+    var start = iso8601ToDate( data["schedule"]["now"]["broadcast"]["start"] );
+    var end = iso8601ToDate( data["schedule"]["now"]["broadcast"]["end"] );
     var title = data["schedule"]["now"]["broadcast"]["programme"]["display_titles"]["title"];
     var subtitle = data["schedule"]["now"]["broadcast"]["programme"]["short_synopsis"];
     var link = "chrome.tabs.create({url: '"+bg.programmes_url + pid+"'});"; 
     return '<img class="promo" src="'+promo_img+'">' +
+           '<p class="startend">'+dateToHHMM(start)+' - '+dateToHHMM(end)+'</p>' +
            '<p class="title"><a href="#" onclick="'+link+'">'+title+'</a></p>' +
            '<p class="subtitle">'+subtitle+'</p>';
   } else {
@@ -71,10 +74,13 @@ function nextData(data) {
   if (data["schedule"]["next"]) {
     var pid = data["schedule"]["next"]["broadcasts"][0]["programme"]["pid"];
     var promo_img = 'http://node2.bbcimg.co.uk/iplayer/images/episode/'+pid+'_86_48.jpg';
+    var start = iso8601ToDate( data["schedule"]["next"]["broadcasts"][0]["start"] );
+    var end = iso8601ToDate( data["schedule"]["next"]["broadcasts"][0]["end"] );
     var title = data["schedule"]["next"]["broadcasts"][0]["programme"]["display_titles"]["title"];
     var subtitle = data["schedule"]["next"]["broadcasts"][0]["programme"]["short_synopsis"];
     var link = "chrome.tabs.create({url: '"+bg.programmes_url + pid+"'});"; 
     return '<img class="promo" src="'+promo_img+'">' +
+           '<p class="startend">'+dateToHHMM(start)+' - '+dateToHHMM(end)+'</p>' +
            '<p class="title"><a href="#" onclick="'+link+'">'+title+'</a></p>' +
            '<p class="subtitle">'+subtitle+'</p>';
   } else {
@@ -84,9 +90,24 @@ function nextData(data) {
 
 function serviceData(data) {
   var stations = bg.stations;
-  var key = stations[data["schedule"]["service"]["key"]];
+  var service = data["schedule"]["service"];
+  var key = stations[service["key"]];
+  var type = service["type"];
   var path = 'http://www.bbc.co.uk/iplayer/img/station_logos/'+key+'.png';
-  return '<img src="'+path+'" />'
+  var link = "chrome.tabs.create({url: 'http://www.bbc.co.uk/iplayer/"+type+"/"+key+"'});"; 
+  return '<a href="#" onclick="'+link+'"><img src="'+path+'" /></a>'
+}
+
+function dateToHHMM(date) {
+  var hours = date.getHours() < 10 ? '0'+date.getHours() : date.getHours(); 
+  var mins = date.getMinutes() < 10 ? '0'+date.getMinutes() : date.getMinutes(); 
+  return hours + ':' + mins;  
+}
+
+function iso8601ToDate(time) {
+  var date = new Date(); 
+  date.setTime( Date.parse((time || "").replace(/-/g,"/").replace(/[TZ]/g," ")) );
+  return date; 
 }
 
 </script>
