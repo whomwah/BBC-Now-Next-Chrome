@@ -1,6 +1,6 @@
 {
   "name": "BBC Now Next",
-  "version": "0.3",
+  "version": "0.3.1",
   "description": "What's Now and Next on BBC Radio and Television.",
   "options_page": "options.html",
   "background_page": "constants.html",
