@@ -103,13 +103,9 @@ body#popup {
   width:auto;
   float:none;
   font-size:12px;
-  padding:5px;
-  border-bottom:1px solid #ccc;
+  padding:10px 5px 5px 5px;
+  border-top:1px solid #ddd;
   margin-bottom:3px;
-}
-
-#popup li:last-child {
-  border:none;
 }
 
 #popup li div {
@@ -158,8 +154,8 @@ body#popup {
 
 #popup .network img {
   float:none;
+  width:60px;
   -webkit-border-radius: 5px; 
-  -webkit-box-reflect: below 2px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(.7, transparent), to(white));
 }
 
 #popup .now,
@@ -187,4 +183,24 @@ body#popup {
 
 #welcome {
   display:none;
+}
+
+#header span {
+  font-size:14px;
+  font-weight:bold;
+  text-shadow: 0 1px 1px #fff;
+}
+
+#header span.left {
+  position:relative;
+  left:87px;
+}
+
+#header span.right {
+  position:relative;
+  left:292px;
+}
+
+#header {
+  margin-bottom:5px;
 }

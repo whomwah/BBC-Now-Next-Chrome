@@ -14,16 +14,13 @@ function main() {
     return;
   }
 
-  var best_choice = bg.best_choice;
-
   var services = [];
   jQuery.each(favs.split(','), function(index, key) {
     var outlet = '';
-    if (best_choice[key]) {
-      outlet = best_choice[key] + "/"; 
+    if (bg.best_choice[key]) {
+      outlet = bg.best_choice[key] + "/"; 
     }
     services.push("http://www.bbc.co.uk/"+key+"/programmes/schedules/"+outlet+"upcoming.json");
-    //services.push("upcoming.json");
   });
 
   displayList(services);
@@ -35,10 +32,13 @@ function displayList(s) {
       url: url,
       dataType: 'json',
       success: function(data) {
+        if (!data) {
+          return $("#services").append("<li>Oops, connection error!</li>");
+        }
         buildServiceLabel(data);
       },
       error: function(data) {
-        $("#services").append("<li>oops, there has been a problem fetching the data</li>");
+        $("#services").append("<li>Oops, there has been a problem fetching the data</li>");
       }
     });
   });
@@ -49,19 +49,32 @@ function buildServiceLabel(data) {
   var next = nextData(data);
   var service = serviceData(data);
   
-  $("#services").append('<li><div class="network">'+service+'</div><div class="now">'+now+'</div><div class="next">'+next+'</div></li>');
+  $("#services").append(
+    '<li><div class="network">'+service+'</div>' +
+    '<div class="now">'+now+'</div>' +
+    '<div class="next">'+next+'</div></li>');
 }
 
 function nowData(data) {
-  if (data["schedule"]["now"]) { 
-    var pid = data["schedule"]["now"]["broadcast"]["programme"]["pid"];
+  return nowNext(data, "now");
+}
+
+function nextData(data) {
+  return nowNext(data, "next");
+}
+
+function nowNext(data, key) {
+  if (data["schedule"][key]) {
+    var which = data["schedule"][key]; 
+    var broadc = (key == "now") ? which["broadcast"] : which["broadcasts"][0]; 
+    var pid = broadc["programme"]["pid"];
     var promo_img = 'http://node2.bbcimg.co.uk/iplayer/images/episode/'+pid+'_86_48.jpg';
-    var start = iso8601ToDate( data["schedule"]["now"]["broadcast"]["start"] );
-    var end = iso8601ToDate( data["schedule"]["now"]["broadcast"]["end"] );
-    var title = data["schedule"]["now"]["broadcast"]["programme"]["display_titles"]["title"];
-    var subtitle = data["schedule"]["now"]["broadcast"]["programme"]["short_synopsis"];
+    var start = iso8601ToLocalDate( broadc["start"] );
+    var end = iso8601ToLocalDate( broadc["end"] );
+    var title = broadc["programme"]["display_titles"]["title"];
+    var subtitle = broadc["programme"]["short_synopsis"];
     var link = "chrome.tabs.create({url: '"+bg.programmes_url + pid+"'});"; 
-    return '<img class="promo" src="'+promo_img+'">' +
+    return '<a href="#" onclick="'+link+'"><img class="promo" src="'+promo_img+'" /></a>' +
            '<p class="startend">'+dateToHHMM(start)+' - '+dateToHHMM(end)+'</p>' +
            '<p class="title"><a href="#" onclick="'+link+'">'+title+'</a></p>' +
            '<p class="subtitle">'+subtitle+'</p>';
@@ -70,28 +83,9 @@ function nowData(data) {
   }
 }
 
-function nextData(data) {
-  if (data["schedule"]["next"]) {
-    var pid = data["schedule"]["next"]["broadcasts"][0]["programme"]["pid"];
-    var promo_img = 'http://node2.bbcimg.co.uk/iplayer/images/episode/'+pid+'_86_48.jpg';
-    var start = iso8601ToDate( data["schedule"]["next"]["broadcasts"][0]["start"] );
-    var end = iso8601ToDate( data["schedule"]["next"]["broadcasts"][0]["end"] );
-    var title = data["schedule"]["next"]["broadcasts"][0]["programme"]["display_titles"]["title"];
-    var subtitle = data["schedule"]["next"]["broadcasts"][0]["programme"]["short_synopsis"];
-    var link = "chrome.tabs.create({url: '"+bg.programmes_url + pid+"'});"; 
-    return '<img class="promo" src="'+promo_img+'">' +
-           '<p class="startend">'+dateToHHMM(start)+' - '+dateToHHMM(end)+'</p>' +
-           '<p class="title"><a href="#" onclick="'+link+'">'+title+'</a></p>' +
-           '<p class="subtitle">'+subtitle+'</p>';
-  } else {
-    return '';
-  }
-}
-
 function serviceData(data) {
-  var stations = bg.stations;
   var service = data["schedule"]["service"];
-  var key = stations[service["key"]];
+  var key = bg.stations[service["key"]];
   var type = service["type"];
   var path = 'http://www.bbc.co.uk/iplayer/img/station_logos/'+key+'.png';
   var link = "chrome.tabs.create({url: 'http://www.bbc.co.uk/iplayer/"+type+"/"+key+"'});"; 
@@ -99,12 +93,15 @@ function serviceData(data) {
 }
 
 function dateToHHMM(date) {
-  var hours = date.getHours() < 10 ? '0'+date.getHours() : date.getHours(); 
-  var mins = date.getMinutes() < 10 ? '0'+date.getMinutes() : date.getMinutes(); 
+  var h = date.getHours(); 
+  var m = date.getMinutes();
+  var hours = h < 10 ? '0' + h : h; 
+  var mins  = m < 10 ? '0' + m : m; 
   return hours + ':' + mins;  
 }
 
-function iso8601ToDate(time) {
+function iso8601ToLocalDate(time) {
+  // assumes time given is UTC
   var date = new Date(); 
   date.setTime( Date.parse((time || "").replace(/-/g,"/").replace(/[TZ]/g," ")) );
   return date; 
@@ -118,7 +115,8 @@ function iso8601ToDate(time) {
       <h1>BBC Now and Next information</h1>
       <p>Welcome. To get started, you need to select some stations to display. Go to the <a href="#" onclick="chrome.tabs.create({url: 'chrome://extensions'});">Extensions page</a> and click the <strong>Options</strong> button for this extension.</p>
     </div>
-    <div id="">
+    <div id="main">
+      <div id="header"><span class="left">Now</span> <span class="right">Next</span></div>
       <ul id="services"></ul>
     </div>
   </div>
