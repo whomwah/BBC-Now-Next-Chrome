@@ -88,6 +88,10 @@ body#popup {
   padding:0;
 }
 
+#popup #main {
+  display:none;
+}
+
 #popup h1 {
   font-size:16px;
   padding:0;
