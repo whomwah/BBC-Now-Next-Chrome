@@ -49,12 +49,14 @@ function displayList(s) {
 function buildServiceLabel(data) {
   var now = nowData(data);
   var next = nextData(data);
+  var upcoming = upcomingData(data);
   var service = serviceData(data);
   
   $("#services").append(
     '<li><div class="network">'+service+'</div>' +
     '<div class="now">'+now+'</div>' +
-    '<div class="next">'+next+'</div></li>');
+    '<div class="next">'+next+'</div>' +
+    '<div class="upcoming">'+upcoming+'</div></li>');
 }
 
 function nowData(data) {
@@ -63,6 +65,30 @@ function nowData(data) {
 
 function nextData(data) {
   return nowNext(data, "next");
+}
+
+function upcomingData(data) {
+  if (data["schedule"]["next"]) {
+    var results_arry = [];
+    var bcs = data["schedule"]["next"]["broadcasts"];
+
+    for (var i = 1, b; b = bcs[i]; i++) {
+      var pid = b["programme"]["pid"];
+      var title = b["programme"]["display_titles"]["title"];
+      var start = iso8601ToLocalDate( b["start"] );
+      var end = iso8601ToLocalDate( b["end"] );
+      var link = "chrome.tabs.create({url: '"+bg.programmes_url + pid+"'});"; 
+      results_arry.push(
+        '<li><p class="startend">'+dateToHHMM(start)+' - '+dateToHHMM(end)+'</p>' +
+        '<p class="subtitle"><a href="#" onclick="'+link+'">'+title+'</a></p></li>'
+      );
+    }
+
+
+    return '<ul>' + results_arry.join('') + '</ul>';
+  } else {
+    return '--';
+  }
 }
 
 function nowNext(data, key) {
@@ -118,7 +144,7 @@ function iso8601ToLocalDate(time) {
       <p>Welcome. To get started, you need to select some stations to display. Go to the <a href="#" onclick="chrome.tabs.create({url: 'chrome://extensions'});">Extensions page</a> and click the <strong>Options</strong> button for this extension.</p>
     </div>
     <div id="main">
-      <div id="header"><span class="left">Now</span> <span class="right">Next</span></div>
+      <div id="header"><span class="left">Now</span> <span class="right">Next</span><span class="later">Later</span></div>
       <ul id="services"></ul>
     </div>
   </div>

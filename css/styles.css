@@ -83,7 +83,7 @@ li {
 }
 
 body#popup {
-  width:600px;
+  width:700px;
   background:transparent;
   padding:0;
 }
@@ -107,7 +107,7 @@ body#popup {
   width:auto;
   float:none;
   font-size:12px;
-  padding:10px 5px 5px 5px;
+  padding:10px 0 5px 5px;
   border-top:1px solid #ddd;
   margin-bottom:3px;
 }
@@ -124,25 +124,20 @@ body#popup {
   float:left;
 }
 
-#popup li div p.startend {
+#popup li p.startend {
+  color:#5a5c62;
   font-size:10px;
   letter-spacing:1px;
   font-weight:bold;
 }
 
-#popup li div p.subtitle {
+#popup li p.subtitle {
+  padding-right:5px;
   clear:left;
 }
 
 #popup li div:first-child {
   margin-left:0;
-}
-
-#popup li:after {
-  content: ".";
-  height: 0;
-  clear: both;
-  visibility: hidden;
 }
 
 #popup #content {
@@ -166,6 +161,28 @@ body#popup {
 #popup .next {
   float:left;
   width:230px;
+}
+
+#popup .upcoming {
+  float:left;
+  width:110px;
+  padding:0;
+}
+
+#popup .upcoming li {
+  border:none;
+  padding:0;
+}
+
+#popup .upcoming li p.startend {
+  line-height:12px;
+  margin:0;
+  padding:0;
+}
+
+#popup .upcoming li p.subtitle a {
+  font-weight:normal;
+  font-size:11px;
 }
 
 #popup li h4 {
@@ -203,6 +220,11 @@ body#popup {
 #header span.right {
   position:relative;
   left:292px;
+}
+
+#header span.later {
+  position:relative;
+  left:499px;
 }
 
 #header {
