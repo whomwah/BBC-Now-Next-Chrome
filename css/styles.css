@@ -180,10 +180,22 @@ body#popup {
   padding:0;
 }
 
+#popup li p.startend img {
+  float:none;
+  display:inline;
+  margin:0;
+}
+
 #popup .upcoming li p.subtitle a {
   font-weight:normal;
   font-size:11px;
 }
+
+#popup p.startend img:hover {
+  -webkit-transform: rotate(360deg) scale(1.4);
+  -webkit-transition: all 1s ease-out;
+}
+
 
 #popup li h4 {
   font-weight:normal;

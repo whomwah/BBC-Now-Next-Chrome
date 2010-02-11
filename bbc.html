@@ -1,13 +1,14 @@
 <head>
 <link type="text/css" rel="stylesheet" href="css/styles.css">
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
-<script type="text/javascript" src="js/json2.js"></script>
+<script type="text/javascript" src="js/jquery-1.4.1.min.js"></script>
+<script type="text/javascript" src="js/jquery.timers.js"></script>
 <script>
 
 var bg = chrome.extension.getBackgroundPage();
 
 function main() {
   var favs = localStorage["fav_services"];
+  chrome.browserAction.setBadgeText({text:""});
 
   if (!favs) {
     $('#welcome').fadeIn(); 
@@ -79,11 +80,10 @@ function upcomingData(data) {
       var end = iso8601ToLocalDate( b["end"] );
       var link = "chrome.tabs.create({url: '"+bg.programmes_url + pid+"'});"; 
       results_arry.push(
-        '<li><p class="startend">'+dateToHHMM(start)+' - '+dateToHHMM(end)+'</p>' +
+        '<li><p class="startend">'+dateToHHMM(start)+' - '+dateToHHMM(end)+buildTimerLink(start)+'</p>' +
         '<p class="subtitle"><a href="#" onclick="'+link+'">'+title+'</a></p></li>'
       );
     }
-
 
     return '<ul>' + results_arry.join('') + '</ul>';
   } else {
@@ -102,8 +102,9 @@ function nowNext(data, key) {
     var title = broadc["programme"]["display_titles"]["title"];
     var subtitle = broadc["programme"]["short_synopsis"];
     var link = "chrome.tabs.create({url: '"+bg.programmes_url + pid+"'});"; 
+    var timer = (key != "now") ? buildTimerLink(start) : '';
     return '<a href="#" onclick="'+link+'"><img class="promo" src="'+promo_img+'" /></a>' +
-           '<p class="startend">'+dateToHHMM(start)+' - '+dateToHHMM(end)+'</p>' +
+           '<p class="startend">'+dateToHHMM(start)+' - '+dateToHHMM(end)+timer+'</p>' +
            '<p class="title"><a href="#" onclick="'+link+'">'+title+'</a></p>' +
            '<p class="subtitle">'+subtitle+'</p>';
   } else {
@@ -120,12 +121,24 @@ function serviceData(data) {
   return '<a href="#" onclick="'+link+'"><img src="'+path+'" /></a>'
 }
 
+function buildTimerLink(d) {
+  return '<span class="timer"> <a href="#" onclick="bg.startTimer('+dateToSecondsFromNow(d)+', this);" title="Add Reminder">' +
+         '<img src="images/clock.png" /></a></span>';
+}
+
 function dateToHHMM(date) {
   var h = date.getHours(); 
   var m = date.getMinutes();
   var hours = h < 10 ? '0' + h : h; 
   var mins  = m < 10 ? '0' + m : m; 
   return hours + ':' + mins;  
+}
+
+function dateToSecondsFromNow(date) {
+  var d = new Date();
+  date = new Date( d.getTime() + (1000*10) ); 
+  var now = date.getTime() - d.getTime();
+  return Math.ceil(now);  
 }
 
 function iso8601ToLocalDate(time) {
@@ -149,4 +162,4 @@ function iso8601ToLocalDate(time) {
     </div>
   </div>
 </body>
-</html>
+</Html>

@@ -1,3 +1,7 @@
+<html>
+<head>
+<script type="text/javascript" src="js/jquery-1.4.1.min.js"></script>
+<script type="text/javascript" src="js/jquery.timers.js"></script>
 <script type="text/javascript">
 
 var best_choice = {
@@ -83,4 +87,79 @@ var stations = {
 
 var programmes_url = "http://www.bbc.co.uk/programmes/";
 
+// the timer logic
+
+var rotation = 0;
+var canvas;
+var canvasContext;
+var animationFrames = 36;
+var animationSpeed = 20;
+var rotation_times = 0; 
+
+function init() {
+  canvas = document.createElement("canvas");
+  canvas.width = "19";
+  canvas.height = "19";
+  icon_image  = document.createElement("img");
+  icon_image.src = "images/icon19.png";
+  icon_image.width = "19";
+  icon_image.height = "19";
+  canvasContext = canvas.getContext('2d');
+}
+
+function ease(x) {
+  return (1-Math.sin(Math.PI/2+x*Math.PI))/2;
+}
+
+function animateFlip() {
+  rotation += 1/animationFrames;
+  drawIconAtRotation();
+
+  if (rotation <= 1) {
+    setTimeout("animateFlip()", animationSpeed);
+  } else {
+    rotation = 0;
+
+    if (rotation_times < 4) {
+      rotation_times ++; 
+      animateFlip();
+    } else {
+      drawIconAtRotation();
+      rotation_times = 0; 
+    }
+  }
+}
+
+function drawIconAtRotation() {
+  canvasContext.save();
+  canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+  canvasContext.translate(
+      Math.ceil(canvas.width/2),
+      Math.ceil(canvas.height/2)
+  );
+  canvasContext.rotate(2*Math.PI*ease(rotation));
+  canvasContext.drawImage(icon_image,
+      -Math.ceil(canvas.width/2),
+      -Math.ceil(canvas.height/2));
+  canvasContext.restore();
+  chrome.browserAction.setIcon({imageData:canvasContext.getImageData(0, 0,
+      canvas.width,canvas.height)});
+}
+
+function startTimer(time, el) {
+  $(el).oneTime(time, function() {
+    updateBadge(el);
+  });
+}
+
+function updateBadge(el) {
+  //chrome.browserAction.setBadgeText({text:"1"});
+  el.fadeOut();
+  animateFlip();
+}
+
 </script>
+</head>
+<body onload="init()">
+</body>
+</html>
