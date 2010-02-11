@@ -79,8 +79,9 @@ function upcomingData(data) {
       var start = iso8601ToLocalDate( b["start"] );
       var end = iso8601ToLocalDate( b["end"] );
       var link = "chrome.tabs.create({url: '"+bg.programmes_url + pid+"'});"; 
+      var id = create_id(data["schedule"]["service"], pid);
       results_arry.push(
-        '<li><p class="startend">'+dateToHHMM(start)+' - '+dateToHHMM(end)+buildTimerLink(start)+'</p>' +
+        '<li><p class="startend">'+dateToHHMM(start)+' - '+dateToHHMM(end)+buildTimerLink(start, id)+'</p>' +
         '<p class="subtitle"><a href="#" onclick="'+link+'">'+title+'</a></p></li>'
       );
     }
@@ -102,7 +103,9 @@ function nowNext(data, key) {
     var title = broadc["programme"]["display_titles"]["title"];
     var subtitle = broadc["programme"]["short_synopsis"];
     var link = "chrome.tabs.create({url: '"+bg.programmes_url + pid+"'});"; 
-    var timer = (key != "now") ? buildTimerLink(start) : '';
+    var id = create_id(data["schedule"]["service"], pid);
+
+    var timer = (key != "now") ? buildTimerLink(start, id) : '';
     return '<a href="#" onclick="'+link+'"><img class="promo" src="'+promo_img+'" /></a>' +
            '<p class="startend">'+dateToHHMM(start)+' - '+dateToHHMM(end)+timer+'</p>' +
            '<p class="title"><a href="#" onclick="'+link+'">'+title+'</a></p>' +
@@ -110,6 +113,11 @@ function nowNext(data, key) {
   } else {
     return 'Channel not on air';
   }
+}
+
+function create_id(s,pid) {
+  var key = bg.stations[s["key"]];
+  return key + '_' + pid;
 }
 
 function serviceData(data) {
@@ -121,8 +129,8 @@ function serviceData(data) {
   return '<a href="#" onclick="'+link+'"><img src="'+path+'" /></a>'
 }
 
-function buildTimerLink(d) {
-  return '<span class="timer"> <a href="#" onclick="bg.startTimer('+dateToSecondsFromNow(d)+', this);" title="Add Reminder">' +
+function buildTimerLink(d, id) {
+  return '<span class="timer" id="+id+"> <a href="#" onclick="doTimer('+dateToSecondsFromNow(d)+', this);" title="Add Reminder">' +
          '<img src="images/clock.png" /></a></span>';
 }
 
@@ -139,6 +147,12 @@ function dateToSecondsFromNow(date) {
   date = new Date( d.getTime() + (1000*10) ); 
   var now = date.getTime() - d.getTime();
   return Math.ceil(now);  
+}
+
+function doTimer(time, el) {
+  // add the time and pid to a list
+  $(el).find("img").addClass("spin");
+  bg.startTimer(time, el);
 }
 
 function iso8601ToLocalDate(time) {

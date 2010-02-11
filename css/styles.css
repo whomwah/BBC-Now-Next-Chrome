@@ -191,9 +191,20 @@ body#popup {
   font-size:11px;
 }
 
+@-webkit-keyframes spin {
+  0%   { -webkit-transform: rotate(0deg) scale(1.2);}
+  100%   { -webkit-transform: rotate(360deg) scale(1.2);}
+}
+
 #popup p.startend img:hover {
   -webkit-transform: rotate(360deg) scale(1.4);
-  -webkit-transition: all 1s ease-out;
+  -webkit-transition: all 1s ease-in-out;
+}
+
+#popup p.startend .spin {
+  -webkit-animation-name: spin;
+  -webkit-animation-duration: 1.5s;
+  -webkit-animation-iteration-count: infinite;
 }
 
 
