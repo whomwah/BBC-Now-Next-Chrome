@@ -128,7 +128,7 @@ body#popup {
   color:#5a5c62;
   font-size:10px;
   letter-spacing:1px;
-  font-weight:bold;
+  text-shadow: 0 1px 1px #fff;
 }
 
 #popup li p.subtitle {
@@ -175,7 +175,6 @@ body#popup {
 }
 
 #popup .upcoming li p.startend {
-  line-height:12px;
   margin:0;
   padding:0;
 }
@@ -216,12 +215,14 @@ body#popup {
   -webkit-animation-iteration-count: infinite;
 }
 
-#popup p.fade {
+#popup p.fade strong {
+  padding:2px 2px;
+  background:#5cec59;
   font-size:11px;
-  color:red;
   -webkit-animation-name: fade;
-  -webkit-animation-duration: 1.5s;
+  -webkit-animation-duration: 2s;
   -webkit-animation-iteration-count: infinite;
+  -webkit-border-radius: 3px; 
 }
 
 #popup li h4 {
@@ -229,6 +230,10 @@ body#popup {
   font-size:11px;
   padding:0;
   margin:0;
+}
+
+#popup p.title {
+  text-shadow: 0 1px 1px #fff;
 }
 
 #status {

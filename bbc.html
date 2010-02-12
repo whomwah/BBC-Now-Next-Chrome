@@ -4,15 +4,17 @@
 <script type="text/javascript" src="js/jquery.timers.js"></script>
 <script>
 
+// global access to background page
 var bg = chrome.extension.getBackgroundPage();
 
 function main() {
   var favs = localStorage.fav_services;
 
-  // reset the badge
+  // reset the icon badge
   chrome.browserAction.setBadgeText({text:""});
   bg.badge_total = 0;
 
+  // have you choosen some networks
   if (!favs) {
     $('#welcome').fadeIn(); 
     return;
@@ -20,16 +22,18 @@ function main() {
     $('#main').show(); 
   }
 
+  // create urls for all the stored fav stations
   var services = [];
   jQuery.each(favs.split(','), function(index, key) {
     var outlet = '';
     if (bg.best_choice[key]) {
       outlet = bg.best_choice[key] + "/"; 
     }
-    //services.push("data/upcoming.json");
-    services.push("http://www.bbc.co.uk/"+key+"/programmes/schedules/"+outlet+"upcoming.json");
+    services.push("data/upcoming.json");
+    //services.push("http://www.bbc.co.uk/"+key+"/programmes/schedules/"+outlet+"upcoming.json");
   });
 
+  // go and fetch all the upcoming information 
   displayList(services);
 }
 
@@ -83,6 +87,8 @@ function upcomingData(data) {
     var results_arry = [];
     var bcs = data["schedule"]["next"]["broadcasts"];
 
+    // loop through all the broadcasts missing out
+    // the first as this is the next in now / next
     for (var i = 1, b; b = bcs[i]; i++) {
       var pid = b["programme"]["pid"];
       var title = b["programme"]["display_titles"]["title"];
@@ -91,7 +97,8 @@ function upcomingData(data) {
       var link = "chrome.tabs.create({url: '"+bg.programmes_url + pid+"'});"; 
       var id = create_id(data["schedule"]["service"], pid);
       results_arry.push(
-        '<li><p class="startend">'+dateToHHMM(start)+' - '+dateToHHMM(end)+buildTimerLink(start, id)+'</p>' +
+        '<li><p class="startend"><strong>'+dateToHHMM(start)+' - '+dateToHHMM(end)+'</strong>' +
+        buildTimerLink(start, id)+'</p>' +
         '<p class="subtitle"><a href="#" onclick="'+link+'">'+title+'</a></p></li>'
       );
     }
@@ -116,7 +123,7 @@ function nowNext(data, key) {
     var id = create_id(data["schedule"]["service"], pid);
     var timer = (key != "now") ? buildTimerLink(start, id) : '';
     return '<a href="#" onclick="'+link+'"><img class="promo" src="'+promo_img+'" /></a>' +
-           '<p class="startend">'+dateToHHMM(start)+' - '+dateToHHMM(end)+timer+'</p>' +
+           '<p class="startend"><strong>'+dateToHHMM(start)+' - '+dateToHHMM(end)+'</strong>'+timer+'</p>' +
            '<p class="title"><a href="#" onclick="'+link+'">'+title+'</a></p>' +
            '<p class="subtitle">'+subtitle+'</p>';
   } else {
@@ -125,6 +132,10 @@ function nowNext(data, key) {
 }
 
 function create_id(s,pid) {
+  // build our re-usable key. This key
+  // only fails if the same programme is re-broadcast
+  // on the same network within 4 shows of it's previous
+  // Am edge case I hope 
   var key = bg.stations[s["key"]];
   return key + '_' + pid;
 }
@@ -145,6 +156,7 @@ function buildTimerLink(d, id) {
 }
 
 function dateToHHMM(date) {
+  // convert a Date object in to the 12:45 format
   var h = date.getHours(); 
   var m = date.getMinutes();
   var hours = h < 10 ? '0' + h : h; 
@@ -155,6 +167,7 @@ function dateToHHMM(date) {
 function doTimer(t, el) {
   var timers = localStorage.timers;
 
+  // allow the user the chance to cancel their timer
   if (timers) {
     $(el).find("img").hasClass("spin") ? bg.removeTimer(el) : bg.addTimer(t,el);
   } else {
@@ -165,6 +178,7 @@ function doTimer(t, el) {
 function removeSpin(key) {
   var el = $("#"+key+" a").find("img");
 
+  // remove the spinning graphic by fading as it looks cooler
   if (el.hasClass("spin")) {
     el.fadeOut('fast', function() {
       el.removeClass("spin"); 
@@ -176,6 +190,7 @@ function removeSpin(key) {
 function displayTimers() {
   var timers = localStorage.timers;
 
+  // show any timers that are already set
   if (timers) {
     timers = JSON.parse(timers);
     for (var key in timers) {
@@ -186,15 +201,20 @@ function displayTimers() {
 }
 
 function showHighlights() {
-  var highlights = localStorage.highlights;
-  console.log(highlights);
+  var hl = localStorage.highlights;
 
-  if (highlights) {
-    highlights = JSON.parse(highlights);
-    for (var key in highlights) {
+  // highlight any timers that have just finished
+  // to help remind which programme you set it on
+  if (hl) {
+    hl = JSON.parse(hl);
+    for (var key in hl) {
       var el = $("#"+key).parent();
-      el.addClass("fade");
+      if (el) {
+        el.addClass("fade");
+        hl[key] = undefined;
+      }
     }
+    localStorage.highlights = JSON.stringify(hl) 
   }
 }
 
