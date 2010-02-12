@@ -8,6 +8,7 @@ var bg = chrome.extension.getBackgroundPage();
 
 function main() {
   var favs = localStorage.fav_services;
+  console.log("someone opened the popup");
 
   // reset the badge
   chrome.browserAction.setBadgeText({text:""});
@@ -64,6 +65,7 @@ function buildServiceLabel(data) {
     '<div class="upcoming">'+upcoming+'</div></li>');
 
   // add any timers that were set
+  displayTimers();
 }
 
 function nowData(data) {
@@ -155,6 +157,27 @@ function doTimer(t, el) {
     $(el).find("img").hasClass("spin") ? bg.removeTimer(el) : bg.addTimer(t,el);
   } else {
     bg.addTimer(t,el);
+  }
+}
+
+function removeSpin(key) {
+  var el = $("#"+key+" a").find("img");
+  if (el.hasClass("spin")) {
+    el.fadeOut('fast', function() {
+      el.removeClass("spin"); 
+    });
+  }
+}
+
+function displayTimers() {
+  var timers = localStorage.timers;
+
+  if (timers) {
+    timers = JSON.parse(timers);
+    for (var key in timers) {
+      var el = $("#"+key+" a").find("img");
+      el.addClass("spin");
+    }
   }
 }
 

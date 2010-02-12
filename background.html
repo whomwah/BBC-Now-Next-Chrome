@@ -168,8 +168,6 @@ function addTimer(t, el) {
   timers[key] = t;
   localStorage.timers = JSON.stringify(timers);
   startTimer(t, el);
-
-  console.log("timer added: " + localStorage.timers);
 }
 
 function removeTimer(el) {
@@ -181,8 +179,6 @@ function removeTimer(el) {
     timers[key] = undefined;
     localStorage.timers = JSON.stringify(timers);
     stopTimer(el);
-
-    console.log("timer removed: " + localStorage.timers);
   }
 }
 
@@ -203,12 +199,20 @@ function secondsFromNow(epoch) {
 
 function timerFinished(el) {
   // stop the spinning
-  $(el).find("img").removeClass("spin"); 
+  var key = keyForElement(el); 
+
+  // rather long winded way to get the popup
+  var viewTabUrl = chrome.extension.getURL('bbc.html');
+  var views = chrome.extension.getViews();
+  for (var i = 0; i < views.length; i++) {
+    var view = views[i];
+    if (view.document.URL.lastIndexOf(viewTabUrl) >= 0) {
+      view.removeSpin(key); 
+    }
+  }
 
   // remove the timer
   removeTimer(el);
-
-  console.log("timer finshed: " + localStorage.timers);
 
   // set the badge
   badge_total ++;
