@@ -107,6 +107,9 @@ function init() {
 
   // clear out all timers for now
   localStorage.removeItem("timers");
+
+  // clear out all highlights 
+  localStorage.removeItem("highlights");
 }
 
 function ease(x) {
@@ -217,6 +220,12 @@ function timerFinished(el) {
   // set the badge
   badge_total ++;
   chrome.browserAction.setBadgeText({text:String(badge_total)});
+
+  // add to highlights list;
+  var highlights = localStorage.highlights;
+  highlights = highlights ? JSON.parse(highlights) : {};
+  highlights[key] = true;
+  localStorage.highlights = JSON.stringify(highlights);
 
   // do the flip
   animateFlip();

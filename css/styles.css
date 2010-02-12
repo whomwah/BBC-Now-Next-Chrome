@@ -197,6 +197,12 @@ body#popup {
   100%   { -webkit-transform: rotate(360deg) scale(1.5);}
 }
 
+@-webkit-keyframes fade {
+  0%   { opacity:0.2; }
+  50%   { opacity:1; }
+  100%   { opacity:0.2; }
+}
+
 #popup p.startend img:hover {
   background:#5cec59;
   -webkit-transform: rotate(360deg) scale(1.8);
@@ -206,6 +212,14 @@ body#popup {
 #popup p.startend .spin {
   background:#5cec59;
   -webkit-animation-name: spin;
+  -webkit-animation-duration: 1.5s;
+  -webkit-animation-iteration-count: infinite;
+}
+
+#popup p.fade {
+  font-size:11px;
+  color:red;
+  -webkit-animation-name: fade;
   -webkit-animation-duration: 1.5s;
   -webkit-animation-iteration-count: infinite;
 }

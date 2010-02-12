@@ -8,7 +8,6 @@ var bg = chrome.extension.getBackgroundPage();
 
 function main() {
   var favs = localStorage.fav_services;
-  console.log("someone opened the popup");
 
   // reset the badge
   chrome.browserAction.setBadgeText({text:""});
@@ -66,6 +65,9 @@ function buildServiceLabel(data) {
 
   // add any timers that were set
   displayTimers();
+
+  // hightlight if needed
+  showHighlights();
 }
 
 function nowData(data) {
@@ -162,9 +164,11 @@ function doTimer(t, el) {
 
 function removeSpin(key) {
   var el = $("#"+key+" a").find("img");
+
   if (el.hasClass("spin")) {
     el.fadeOut('fast', function() {
       el.removeClass("spin"); 
+      el.fadeIn();
     });
   }
 }
@@ -181,6 +185,19 @@ function displayTimers() {
   }
 }
 
+function showHighlights() {
+  var highlights = localStorage.highlights;
+  console.log(highlights);
+
+  if (highlights) {
+    highlights = JSON.parse(highlights);
+    for (var key in highlights) {
+      var el = $("#"+key).parent();
+      el.addClass("fade");
+    }
+  }
+}
+
 function iso8601ToLocalDate(time) {
   // assumes time given is UTC
   var date = new Date(); 
@@ -188,9 +205,13 @@ function iso8601ToLocalDate(time) {
   return date; 
 }
 
+$(document).ready(function() {
+  main();
+});
+
 </script>
 </head>
-<body onload="javascript:main()" id="popup">
+<body id="popup">
   <div id="content">
     <div id="welcome">
       <h1>BBC Now and Next information</h1>
