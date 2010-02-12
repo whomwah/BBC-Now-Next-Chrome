@@ -29,8 +29,8 @@ function main() {
     if (bg.best_choice[key]) {
       outlet = bg.best_choice[key] + "/"; 
     }
-    services.push("data/upcoming.json");
-    //services.push("http://www.bbc.co.uk/"+key+"/programmes/schedules/"+outlet+"upcoming.json");
+    //services.push("data/upcoming.json");
+    services.push("http://www.bbc.co.uk/"+key+"/programmes/schedules/"+outlet+"upcoming.json");
   });
 
   // go and fetch all the upcoming information 
