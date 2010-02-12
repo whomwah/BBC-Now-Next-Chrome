@@ -202,11 +202,11 @@ body#popup {
 }
 
 #popup p.startend .spin {
+  background-color:#666;
   -webkit-animation-name: spin;
   -webkit-animation-duration: 1.5s;
   -webkit-animation-iteration-count: infinite;
 }
-
 
 #popup li h4 {
   font-weight:normal;

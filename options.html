@@ -8,8 +8,8 @@
 function main() {
   $('#status').text('loading all available services...');
 
-  var last_updated = localStorage["bbc_services_last_updated"];
-  var stored_services = localStorage["bbc_services"];
+  var last_updated = localStorage.bbc_services_last_updated;
+  var stored_services = localStorage.bbc_services;
   var now = new Date().getTime();
   
   if (last_updated && now < last_updated) {
@@ -46,13 +46,13 @@ function displayMessage(el, message) {
 
 function showServices(data) {
   var now = new Date().getTime();
-  var last_updated = localStorage["bbc_services_last_updated"];
+  var last_updated = localStorage.bbc_services_last_updated;
 
   if (!last_updated || (last_updated && now > last_updated)) {
     var timestamp = new Date();
     timestamp.setDate(timestamp.getDate()+1);
-    localStorage["bbc_services"] = JSON.stringify(data);
-    localStorage["bbc_services_last_updated"] = timestamp.getTime();
+    localStorage.bbc_services = JSON.stringify(data);
+    localStorage.bbc_services_last_updated = timestamp.getTime();
   }
 
   for (var i = 0, service; service = data["services"][i]; i++) {
@@ -82,12 +82,12 @@ function save_options() {
     wallet.push( $(this).attr('id') );
   });
 
-  localStorage["fav_services"] = wallet;
+  localStorage.fav_services = wallet;
   displayMessage("#message", "Success, your options have been saved!");
 }
 
 function restore_options() {
-  var s = localStorage["fav_services"];
+  var s = localStorage.fav_services;
   if (!s) return;
   
   jQuery.each(s.split(','), function(index, value) {

@@ -95,16 +95,18 @@ var canvasContext;
 var animationFrames = 36;
 var animationSpeed = 20;
 var rotation_times = 0; 
+var badge_total = 0; 
 
 function init() {
   canvas = document.createElement("canvas");
-  canvas.width = "19";
-  canvas.height = "19";
+  canvas.width = canvas.height = "19";
   icon_image  = document.createElement("img");
   icon_image.src = "images/icon19.png";
-  icon_image.width = "19";
-  icon_image.height = "19";
+  icon_image.width = icon_image.height = "19";
   canvasContext = canvas.getContext('2d');
+
+  // clear out all timers for now
+  localStorage.removeItem("timers");
 }
 
 function ease(x) {
@@ -146,31 +148,77 @@ function drawIconAtRotation() {
       canvas.width,canvas.height)});
 }
 
-function startTimer(time, el) {
-  $(el).oneTime(time, function() {
-    updateBadge(el);
+function startTimer(t, el) {
+  $(el).find("img").addClass("spin"); 
+  $(el).oneTime(secondsFromNow(t), function() {
+    timerFinished(el);
   });
 }
 
-function updateBadge(el) {
-  chrome.browserAction.setBadgeText({text:"1"});
+function stopTimer(el) {
+  $(el).find("img").removeClass("spin"); 
+  $(el).stopTime();
+}
 
-  console.log("got here: ");
+function addTimer(t, el) {
+  var key = keyForElement(el); 
+  var timers = localStorage.timers;
 
-  var views = chrome.extension.getViews();
-  var viewTabUrl = chrome.extension.getURL('bbc.html');
-  for (var i = 0; i < views.length; i++) {
-    var view = views[i];
-    if (view.location.href == viewTabUrl) {
-      //view.el.fadeOut();
-    }
+  timers = timers ? JSON.parse(timers) : {};
+  timers[key] = t;
+  localStorage.timers = JSON.stringify(timers);
+  startTimer(t, el);
+
+  console.log("timer added: " + localStorage.timers);
+}
+
+function removeTimer(el) {
+  var key = keyForElement(el); 
+  var timers = localStorage.timers;
+
+  if (timers) {
+    timers = JSON.parse(timers);
+    timers[key] = undefined;
+    localStorage.timers = JSON.stringify(timers);
+    stopTimer(el);
+
+    console.log("timer removed: " + localStorage.timers);
   }
+}
 
+function keyForElement(el) {
+  return $(el).parent().attr("id"); 
+}
+
+function secondsFromNow(epoch) {
+  var d = new Date();
+
+  //remove when done
+  epoch = new Date( d.getTime() + (1000*10) ); 
+  var now = epoch.getTime() - d.getTime();
+
+  //var now = epoch - d.getTime();
+  return Math.ceil(now);  
+}
+
+function timerFinished(el) {
+  // stop the spinning
+  $(el).find("img").removeClass("spin"); 
+
+  // remove the timer
+  removeTimer(el);
+
+  console.log("timer finshed: " + localStorage.timers);
+
+  // set the badge
+  badge_total ++;
+  chrome.browserAction.setBadgeText({text:String(badge_total)});
+
+  // do the flip
   animateFlip();
 }
 
 </script>
 </head>
-<body onload="init()">
-</body>
+<body onload="init()"></body>
 </html>

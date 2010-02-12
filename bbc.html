@@ -7,8 +7,11 @@
 var bg = chrome.extension.getBackgroundPage();
 
 function main() {
-  var favs = localStorage["fav_services"];
+  var favs = localStorage.fav_services;
+
+  // reset the badge
   chrome.browserAction.setBadgeText({text:""});
+  bg.badge_total = 0;
 
   if (!favs) {
     $('#welcome').fadeIn(); 
@@ -23,6 +26,7 @@ function main() {
     if (bg.best_choice[key]) {
       outlet = bg.best_choice[key] + "/"; 
     }
+    //services.push("data/upcoming.json");
     services.push("http://www.bbc.co.uk/"+key+"/programmes/schedules/"+outlet+"upcoming.json");
   });
 
@@ -58,6 +62,8 @@ function buildServiceLabel(data) {
     '<div class="now">'+now+'</div>' +
     '<div class="next">'+next+'</div>' +
     '<div class="upcoming">'+upcoming+'</div></li>');
+
+  // add any timers that were set
 }
 
 function nowData(data) {
@@ -104,7 +110,6 @@ function nowNext(data, key) {
     var subtitle = broadc["programme"]["short_synopsis"];
     var link = "chrome.tabs.create({url: '"+bg.programmes_url + pid+"'});"; 
     var id = create_id(data["schedule"]["service"], pid);
-
     var timer = (key != "now") ? buildTimerLink(start, id) : '';
     return '<a href="#" onclick="'+link+'"><img class="promo" src="'+promo_img+'" /></a>' +
            '<p class="startend">'+dateToHHMM(start)+' - '+dateToHHMM(end)+timer+'</p>' +
@@ -130,7 +135,8 @@ function serviceData(data) {
 }
 
 function buildTimerLink(d, id) {
-  return '<span class="timer" id="+id+"> <a href="#" onclick="doTimer('+dateToSecondsFromNow(d)+', this);" title="Add Reminder">' +
+  var d = d.getTime();
+  return '<span class="timer" id="'+id+'"> <a href="#" onclick="doTimer('+d+', this);" title="Add Reminder">' +
          '<img src="images/clock.png" /></a></span>';
 }
 
@@ -142,17 +148,14 @@ function dateToHHMM(date) {
   return hours + ':' + mins;  
 }
 
-function dateToSecondsFromNow(date) {
-  var d = new Date();
-  date = new Date( d.getTime() + (1000*10) ); 
-  var now = date.getTime() - d.getTime();
-  return Math.ceil(now);  
-}
+function doTimer(t, el) {
+  var timers = localStorage.timers;
 
-function doTimer(time, el) {
-  // add the time and pid to a list
-  $(el).find("img").addClass("spin");
-  bg.startTimer(time, el);
+  if (timers) {
+    $(el).find("img").hasClass("spin") ? bg.removeTimer(el) : bg.addTimer(t,el);
+  } else {
+    bg.addTimer(t,el);
+  }
 }
 
 function iso8601ToLocalDate(time) {
