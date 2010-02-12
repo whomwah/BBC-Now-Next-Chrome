@@ -193,11 +193,11 @@ function secondsFromNow(epoch) {
   var d = new Date();
 
   // used to test start
-  // epoch = new Date( d.getTime() + (1000*10) ); 
-  // var now = epoch.getTime() - d.getTime();
+   epoch = new Date( d.getTime() + (1000*10) ); 
+   var now = epoch.getTime() - d.getTime();
   // used to test end
 
-  var now = epoch - d.getTime();
+//  var now = epoch - d.getTime();
   return Math.ceil(now);  
 }
 

@@ -71,7 +71,7 @@ function buildServiceLabel(data) {
   displayTimers();
 
   // hightlight if needed
-  showHighlights();
+  showHighlights(data);
 }
 
 function nowData(data) {
@@ -200,18 +200,23 @@ function displayTimers() {
   }
 }
 
-function showHighlights() {
+function showHighlights(data) {
   var hl = localStorage.highlights;
+  var service = data["schedule"]["service"];
+  var k = bg.stations[service["key"]];
 
   // highlight any timers that have just finished
   // to help remind which programme you set it on
   if (hl) {
     hl = JSON.parse(hl);
     for (var key in hl) {
-      var el = $("#"+key).parent();
-      if (el) {
+      var m = new RegExp(k+"_[a-z0-9]{6,}$");
+      
+      if (m.test(key)) {
+        var el = $("#"+key).parent();
         el.addClass("fade");
         hl[key] = undefined;
+
       }
     }
     localStorage.highlights = JSON.stringify(hl) 
