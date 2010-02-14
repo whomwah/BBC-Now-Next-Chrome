@@ -97,8 +97,8 @@ function upcomingData(data) {
       var link = "chrome.tabs.create({url: '"+bg.programmes_url + pid+"'});"; 
       var id = create_id(data["schedule"]["service"], pid);
       results_arry.push(
-        '<li><p class="startend"><strong>'+dateToHHMM(start)+' - '+dateToHHMM(end)+'</strong>' +
-        buildTimerLink(start, id)+'</p>' +
+        '<li><p class="startend"><strong>'+dateToHHMM(start)+' - '+dateToHHMM(end)+'</strong> ' +
+        '<span class="timer" id="'+id+'">'+buildTimerLink(start)+'</p>' +
         '<p class="subtitle"><a href="#" onclick="'+link+'">'+title+'</a></p></li>'
       );
     }
@@ -123,7 +123,8 @@ function nowNext(data, key) {
     var id = create_id(data["schedule"]["service"], pid);
     var timer = (key != "now") ? buildTimerLink(start, id) : '';
     return '<a href="#" onclick="'+link+'"><img class="promo" src="'+promo_img+'" /></a>' +
-           '<p class="startend"><strong>'+dateToHHMM(start)+' - '+dateToHHMM(end)+'</strong>'+timer+'</p>' +
+           '<p class="startend"><strong>'+dateToHHMM(start)+' - '+dateToHHMM(end)+'</strong> ' +
+           '<span class="timer" id="'+id+'">'+timer+'</span></p>' +
            '<p class="title"><a href="#" onclick="'+link+'">'+title+'</a></p>' +
            '<p class="subtitle">'+subtitle+'</p>';
   } else {
@@ -149,10 +150,10 @@ function serviceData(data) {
   return '<a href="#" onclick="'+link+'"><img src="'+path+'" /></a>'
 }
 
-function buildTimerLink(d, id) {
+function buildTimerLink(d) {
   var d = d.getTime();
-  return '<span class="timer" id="'+id+'"> <a href="#" onclick="doTimer('+d+', this);" title="Add Reminder">' +
-         '<img src="images/clock.png" /></a></span>';
+  return '<a href="#" onclick="doTimer('+d+', this);" title="Add Reminder">' +
+         '<img src="images/clock.png" /></a>';
 }
 
 function dateToHHMM(date) {
