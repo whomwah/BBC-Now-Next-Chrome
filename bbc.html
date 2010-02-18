@@ -25,47 +25,52 @@ function main() {
   // create urls for all the stored fav stations
   var services = [];
   jQuery.each(favs.split(','), function(index, key) {
+    // do we have an outlet we are gonna overide
     var outlet = '';
     if (bg.best_choice[key]) {
       outlet = bg.best_choice[key] + "/"; 
     }
-    //services.push("data/upcoming.json");
-    services.push("http://www.bbc.co.uk/"+key+"/programmes/schedules/"+outlet+"upcoming.json");
-  });
 
-  // go and fetch all the upcoming information 
-  displayList(services);
+    // set the url for the upcoming destination
+    var url = "http://www.bbc.co.uk/"+key+"/programmes/schedules/"+outlet+"upcoming.json";
+    //var url = "data/upcoming.json";
+
+    // add a list entry so we can keep ordinality
+    $("#services").append('<li id="bbc'+key+'"></li>');
+
+    // go fetch the upcoming data
+    fetchStationDataFor(key, url);
+  });
 }
 
-function displayList(s) {
-  jQuery.each(s, function(index, url) {
-    $.ajax({
-      url: url,
-      dataType: 'json',
-      success: function(data) {
-        if (!data) {
-          return $("#services").append("<li>Oops, connection error!</li>");
-        }
-        buildServiceLabel(data);
-      },
-      error: function(data) {
-        $("#services").append("<li>Oops, there has been a problem fetching the data</li>");
+function fetchStationDataFor(key,url) {
+  console.log("fetching: " + url);
+  $.ajax({
+    url: url,
+    dataType: 'json',
+    success: function(data) {
+      if (!data) {
+        return $("#services #bbc"+key).append("<em>Oops! I'm unable to fetch information for <strong>"+key+"</strong> right now!</em>");
       }
-    });
+      buildServiceLabel(key, data);
+    },
+    error: function(data) {
+      $("#services #bbc"+key).append("<em>Oops! There has been a problem fetching the data for "+key+"</em>");
+    }
   });
 }
 
-function buildServiceLabel(data) {
+function buildServiceLabel(key,data) {
   var now = nowData(data);
   var next = nextData(data);
   var upcoming = upcomingData(data);
   var service = serviceData(data);
   
-  $("#services").append(
-    '<li><div class="network">'+service+'</div>' +
+  $("#services #bbc"+key).append(
+    '<div class="network">'+service+'</div>' +
     '<div class="now">'+now+'</div>' +
     '<div class="next">'+next+'</div>' +
-    '<div class="upcoming">'+upcoming+'</div></li>');
+    '<div class="upcoming">'+upcoming+'</div>');
 
   // add any timers that were set
   displayTimers();
