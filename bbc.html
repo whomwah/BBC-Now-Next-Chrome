@@ -232,7 +232,17 @@ function showHighlights(data) {
 function iso8601ToLocalDate(time) {
   // assumes time given is UTC
   var date = new Date(); 
-  date.setTime( Date.parse((time || "").replace(/-/g,"/").replace(/[TZ]/g," ")) );
+  var tas  = time.replace(/-/g,"/").replace(/T/g," ")
+
+  if (tas.indexOf('Z') == -1) {
+    // 2010-04-01T00:00:00+01:00
+    tas = tas.replace(/\+.*/,'');  
+  } else {
+    // 2010-03-25T00:00:00Z
+    tas = tas.replace(/Z/g,''); 
+  }
+
+  date.setTime( Date.parse((tas || "")) );
   return date; 
 }
 
