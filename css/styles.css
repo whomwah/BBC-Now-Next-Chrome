@@ -116,12 +116,37 @@ body#popup {
   margin-left:8px;
 }
 
-#popup li div img {
+#promo {
+  width:275px;
+  padding:10px;
+}
+
+#popup li div img,
+#promo .image {
   -webkit-border-radius: 3px; 
   display:block;
   margin-right:5px;
   margin-bottom:5px;
   float:left;
+}
+
+#promo h4 {
+  font-size:14px;
+  padding:0;
+  margin:0 0 4px 0;
+}
+
+#promo p {
+  padding:0;
+  margin:0 0 4px 95px;
+  color:#666;
+  line-height:14px;
+}
+
+#promo .image {
+  margin-right:8px;
+  border:1px solid #787878;
+  -webkit-border-radius: 0; 
 }
 
 #popup li p.startend {
@@ -186,7 +211,7 @@ body#popup {
   background:#bcbcbc;
 }
 
-#popup .upcoming li p.subtitle a {
+#popup .upcoming li p.title a {
   font-weight:normal;
   font-size:11px;
 }

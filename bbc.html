@@ -10,10 +10,6 @@ var bg = chrome.extension.getBackgroundPage();
 function main() {
   var favs = localStorage.fav_services;
 
-  // reset the icon badge
-  chrome.browserAction.setBadgeText({text:""});
-  bg.badge_total = 0;
-
   // have you choosen some networks
   if (!favs) {
     $('#welcome').fadeIn(); 
@@ -74,9 +70,6 @@ function buildServiceLabel(key,data) {
 
   // add any timers that were set
   displayTimers();
-
-  // hightlight if needed
-  showHighlights(data);
 }
 
 function nowData(data) {
@@ -91,20 +84,23 @@ function upcomingData(data) {
   if (data["schedule"]["next"]) {
     var results_arry = [];
     var bcs = data["schedule"]["next"]["broadcasts"];
+    var s = serviceDataRaw(data);
 
     // loop through all the broadcasts missing out
     // the first as this is the next in now / next
     for (var i = 1, b; b = bcs[i]; i++) {
       var pid = b["programme"]["pid"];
       var title = b["programme"]["display_titles"]["title"];
+      var subtitle = b["programme"]["short_synopsis"];
       var start = iso8601ToLocalDate( b["start"] );
       var end = iso8601ToLocalDate( b["end"] );
       var link = "chrome.tabs.create({url: '"+bg.programmes_url + pid+"'});"; 
       var id = create_id(data["schedule"]["service"], pid);
       results_arry.push(
         '<li><p class="startend"><strong>'+dateToHHMM(start)+' - '+dateToHHMM(end)+'</strong> ' +
-        '<span class="timer" id="'+id+'">'+buildTimerLink(start)+'</p>' +
-        '<p class="subtitle"><a href="#" onclick="'+link+'">'+title+'</a></p></li>'
+        '<span class="timer" id="'+id+'" service_type="'+s.type+'" service_key="'+s.key+'">'+buildTimerLink(start)+'</span></p>' +
+        '<p class="title"><a href="#" onclick="'+link+'">'+title+'</a></p>' +
+        '<p class="subtitle" style="display:none;">'+subtitle+'</p></li>'
       );
     }
 
@@ -117,6 +113,7 @@ function upcomingData(data) {
 function nowNext(data, key) {
   if (data["schedule"][key]) {
     var which = data["schedule"][key]; 
+    var s = serviceDataRaw(data);
     var broadc = (key == "now") ? which["broadcast"] : which["broadcasts"][0]; 
     var pid = broadc["programme"]["pid"];
     var promo_img = 'http://node2.bbcimg.co.uk/iplayer/images/episode/'+pid+'_86_48.jpg';
@@ -129,7 +126,7 @@ function nowNext(data, key) {
     var timer = (key != "now") ? buildTimerLink(start, id) : '';
     return '<a href="#" onclick="'+link+'"><img class="promo" src="'+promo_img+'" /></a>' +
            '<p class="startend"><strong>'+dateToHHMM(start)+' - '+dateToHHMM(end)+'</strong> ' +
-           '<span class="timer" id="'+id+'">'+timer+'</span></p>' +
+           '<span class="timer" id="'+id+'" service_type="'+s.type+'" service_key="'+s.key+'">'+timer+'</span></p>' +
            '<p class="title"><a href="#" onclick="'+link+'">'+title+'</a></p>' +
            '<p class="subtitle">'+subtitle+'</p>';
   } else {
@@ -146,10 +143,19 @@ function create_id(s,pid) {
   return key + '_' + pid;
 }
 
-function serviceData(data) {
+function serviceDataRaw(data) {
   var service = data["schedule"]["service"];
-  var key = bg.stations[service["key"]];
-  var type = service["type"];
+  var result = {
+    key: bg.stations[service["key"]],
+    type: service["type"]
+  }
+  return result;
+}
+
+function serviceData(data) {
+  var s = serviceDataRaw(data);
+  var key = s.key;
+  var type = s.type;
   var path = 'http://www.bbc.co.uk/iplayer/img/station_logos/'+key+'.png';
   var link = "chrome.tabs.create({url: 'http://www.bbc.co.uk/iplayer/"+type+"/"+key+"'});"; 
   return '<a href="#" onclick="'+link+'"><img src="'+path+'" /></a>'
@@ -206,29 +212,6 @@ function displayTimers() {
   }
 }
 
-function showHighlights(data) {
-  var hl = localStorage.highlights;
-  var service = data["schedule"]["service"];
-  var k = bg.stations[service["key"]];
-
-  // highlight any timers that have just finished
-  // to help remind which programme you set it on
-  if (hl) {
-    hl = JSON.parse(hl);
-    for (var key in hl) {
-      var m = new RegExp(k+"_[a-z0-9]{6,}$");
-      
-      if (m.test(key)) {
-        var el = $("#"+key).parent();
-        el.addClass("fade");
-        hl[key] = undefined;
-
-      }
-    }
-    localStorage.highlights = JSON.stringify(hl) 
-  }
-}
-
 function iso8601ToLocalDate(time) {
   // assumes time given is UTC
   var date = new Date(); 
@@ -264,4 +247,4 @@ $(document).ready(function() {
     </div>
   </div>
 </body>
-</Html>
+</html>

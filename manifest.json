@@ -1,6 +1,6 @@
 {
   "name": "BBC Now Next",
-  "version": "0.5.3",
+  "version": "0.6",
   "description": "What's Now, Next and upcoming on BBC Radio and Television. Set reminders to let you know when a programme is about to start.",
   "options_page": "options.html",
   "background_page": "background.html",
@@ -15,6 +15,7 @@
   },
   "permissions": [
     "http://www.bbc.co.uk/",
-    "tabs"
+    "tabs",
+    "notifications"
   ]
 }

@@ -1,0 +1,29 @@
+<head>
+<link type="text/css" rel="stylesheet" href="css/styles.css">
+<script type="text/javascript" src="js/jquery-1.4.1.min.js"></script>
+<script type="text/javascript">
+function init() {
+  // fetch the pid from the url
+  var key = location.search.substring(1, location.search.length);
+
+  // fetch out programme data
+  var data = JSON.parse(localStorage.programme_data);
+
+  // fetch the programme
+  var p = data[key];
+  var url = 'http://www.bbc.co.uk/iplayer/playlive/'+p.service_key;
+  var link = "chrome.tabs.create({url: '"+url+"'});";
+  var type = p.service_type == 'tv' ? 'watch' : 'listen';
+
+  $('#promo').html(
+    '<img class="image" src="http://node2.bbcimg.co.uk/iplayer/images/episode/'+p.pid+'_86_48.jpg" />' + 
+    '<h4>' + p.title + '</h4>' + 
+    '<p class="watch"><a href="#" onclick="'+link+';self.close();" title="Watch this now"><img src="images/'+type+'.png" /></a></p>' + 
+    '<p>' + p.subtitle + '</p>' 
+  );
+}
+</script>
+</head>
+<body onload="init()"></body>
+<div id="promo"></div>
+</body>

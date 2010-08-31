@@ -95,7 +95,6 @@ var canvasContext;
 var animationFrames = 36;
 var animationSpeed = 20;
 var rotation_times = 0; 
-var badge_total = 0; 
 
 function init() {
   canvas = document.createElement("canvas");
@@ -105,11 +104,11 @@ function init() {
   icon_image.width = icon_image.height = "19";
   canvasContext = canvas.getContext('2d');
 
-  // clear out all timers for now
+  // clear out all timers
   localStorage.removeItem("timers");
 
-  // clear out all highlights 
-  localStorage.removeItem("highlights");
+  // clear out all the show data
+  localStorage.removeItem("programme_data");
 }
 
 function ease(x) {
@@ -193,11 +192,11 @@ function secondsFromNow(epoch) {
   var d = new Date();
 
   // used to test start
-  // epoch = new Date( d.getTime() + (1000*10) ); 
-  // var now = epoch.getTime() - d.getTime();
+  epoch = new Date( d.getTime() + (1000*5) ); 
+  var now = epoch.getTime() - d.getTime();
   // used to test end
 
-  var now = epoch - d.getTime();
+  //var now = epoch - d.getTime();
   return Math.ceil(now);  
 }
 
@@ -218,18 +217,33 @@ function timerFinished(el) {
   // remove the timer
   removeTimer(el);
 
-  // set the badge
-  badge_total ++;
-  chrome.browserAction.setBadgeText({text:String(badge_total)});
-
-  // add to highlights list;
-  var highlights = localStorage.highlights;
-  highlights = highlights ? JSON.parse(highlights) : {};
-  highlights[key] = true;
-  localStorage.highlights = JSON.stringify(highlights);
-
   // do the flip
   animateFlip();
+
+  // store the programme data
+  var alert_data = localStorage.programme_data;
+  alert_data = alert_data ? JSON.parse(alert_data) : {};
+  var d = $(el).parent().parent().parent();
+  var pid_array = key.split('_');
+
+  // fetch out the service stuff
+  var service = d.find('.timer');
+  var key = service.attr('service_key');
+  var type = service.attr('service_type');
+
+  alert_data[key] = {
+    pid: pid_array[pid_array.length-1],
+    title: d.find('p.title a').text(), 
+    subtitle: d.find('p.subtitle').text(), 
+    service_key: key, 
+    service_type: type, 
+  };
+  localStorage.programme_data = JSON.stringify(alert_data);
+
+  var notification = webkitNotifications.createHTMLNotification(
+    'notification.html?'+key
+  );
+  notification.show();
 }
 
 </script>
