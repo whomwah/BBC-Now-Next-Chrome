@@ -2,8 +2,7 @@
 <head>
 <script type="text/javascript" src="js/jquery-1.4.1.min.js"></script>
 <script type="text/javascript" src="js/jquery.timers.js"></script>
-<script type="text/javascript">
-
+<script type="text/javascript"> 
 var best_choice = {
   bbcone: "london",
   bbctwo: "england",
@@ -192,12 +191,13 @@ function secondsFromNow(epoch) {
   var d = new Date();
 
   // used to test start
-  // epoch = new Date( d.getTime() + (1000*5) ); 
-  // var now = epoch.getTime() - d.getTime();
+  //epoch = new Date( d.getTime() + (1000*5) ); 
+  //var diff = epoch.getTime() - d.getTime();
   // used to test end
 
-  var now = epoch - d.getTime();
-  return Math.ceil(now);  
+  var diff = epoch - d.getTime();
+
+  return Math.ceil(diff);  
 }
 
 function timerFinished(el) {
