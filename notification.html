@@ -11,7 +11,7 @@ function init() {
 
   // fetch the programme
   var p = data[key];
-  var url = 'http://www.bbc.co.uk/iplayer/playlive/'+p.service_key;
+  var url = 'http://www.bbc.co.uk/iplayer/'+p.service_type+'/'+p.service_key+'/watchlive';
   var link = "chrome.tabs.create({url: '"+url+"'});";
   var type = p.service_type == 'tv' ? 'watch' : 'listen';
 
