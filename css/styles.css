@@ -179,7 +179,29 @@ body#popup {
 #popup .network img {
   float:none;
   width:60px;
-  -webkit-border-radius: 5px; 
+  -webkit-border-radius: 5px 5px 0 0; 
+  margin-bottom:0;
+}
+
+#popup .network .live {
+  display:block;
+  font-size:9px;
+  width:60px;
+}
+
+#popup .network .live a {
+  -webkit-border-radius: 0 0 5px 5px; 
+  color:#fff;
+  display:block;
+  padding:2px;
+  background-color:#06C;
+  text-decoration:none;
+  text-align:center;
+  font-weight:normal;
+}
+
+#popup .network .live a:hover {
+  background-color:#333;
 }
 
 #popup .now,
