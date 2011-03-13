@@ -158,8 +158,15 @@ function serviceData(data) {
   var type = s.type;
   var which = type == 'tv' ? 'WATCH' : 'LISTEN';
   var path = 'http://www.bbc.co.uk/iplayer/img/station_logos/'+key+'.png';
-  var link = "chrome.tabs.create({url: 'http://www.bbc.co.uk/iplayer/"+type+"/"+key+"/watchlive'});"; 
-  return '<a href="#" onclick="'+link+'"><img src="'+path+'" /></a><span class="live"><a href="#" onclick="'+link+'">'+which+' LIVE</a></span>'
+  var link = "chrome.tabs.create({url: 'http://www.bbc.co.uk/iplayer/"+type+"/"+key+"'});"; 
+  var islive = 'islive';
+  var live_str = ''; 
+  if (data["schedule"]["now"]) {
+    islive = '';
+    live_str = '<span class="live"><a href="#" onclick="'+link+'">'+which+' LIVE</a></span>'; 
+    link = "chrome.tabs.create({url: 'http://www.bbc.co.uk/iplayer/"+type+"/"+key+"/watchlive'});"; 
+  }
+  return '<a href="#" onclick="'+link+'"><img src="'+path+'" class="'+islive+'" /></a>' + live_str;
 }
 
 function buildTimerLink(d) {

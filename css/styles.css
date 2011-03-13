@@ -179,8 +179,12 @@ body#popup {
 #popup .network img {
   float:none;
   width:60px;
-  -webkit-border-radius: 5px 5px 0 0; 
   margin-bottom:0;
+  -webkit-border-radius: 5px 5px 0 0; 
+}
+
+#popup .network img.islive {
+  -webkit-border-radius: 5px; 
 }
 
 #popup .network .live {
