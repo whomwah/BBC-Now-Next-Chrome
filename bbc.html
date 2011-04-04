@@ -163,8 +163,8 @@ function serviceData(data) {
   var live_str = ''; 
   if (data["schedule"]["now"]) {
     islive = '';
-    live_str = '<span class="live"><a href="#" onclick="'+link+'">'+which+' LIVE</a></span>'; 
     link = "chrome.tabs.create({url: 'http://www.bbc.co.uk/iplayer/"+type+"/"+key+"/watchlive'});"; 
+    live_str = '<span class="live"><a href="#" onclick="'+link+'">'+which+' LIVE</a></span>'; 
   }
   return '<a href="#" onclick="'+link+'"><img src="'+path+'" class="'+islive+'" /></a>' + live_str;
 }
